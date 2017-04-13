@@ -49,8 +49,12 @@
 	
 	fow_ia_numberSquads = 4;
 	fow_ia_numberSquadsRandom = 3;
+	fow_ia_numberOfWaves = 2;
+	
+	fow_ia_numberOfWaves_team1 = fow_ia_numberOfWaves;
+	fow_ia_numberOfWaves_team2 = fow_ia_numberOfWaves;
 
-	_getRandomStartPos = {
+	fow_ia_fnc_getRandomStartPos = {
 		_worldsize = getnumber (configfile >> "CfgWorlds" >> worldName >> "mapSize");
 		_r = [(random [200, _worldsize/2, _worldsize - 200]), (random [200, _worldsize/2, _worldsize - 200]), 0];
 		_r
@@ -73,6 +77,9 @@
 		fow_ia_team1 = selectRandom fow_ia_factions_blu;
 		fow_ia_team2 = selectRandom fow_ia_factions_green;
 		
+		fow_ia_team1_id = fow_ia_factions_blu find fow_ia_team1;
+		fow_ia_team2_id = fow_ia_factions_green find fow_ia_team2;
+		
 		fow_ia_playerTeam = selectRandom [fow_ia_team1,fow_ia_team2];
 		
 		true
@@ -83,8 +90,7 @@
 		_n_1 = round (fow_ia_numberSquads + random fow_ia_numberSquadsRandom);
 		_n_2 = round (fow_ia_numberSquads + random fow_ia_numberSquadsRandom);
 	
-		_squads_1_id = fow_ia_factions_blu find fow_ia_team1;
-		_squads_1 = fow_ia_squads_blu select _squads_1_id;
+		_squads_1 = fow_ia_squads_blu select fow_ia_team1_id;
 		
 		for "_i" from 1 to _n_1 do {
 			_type = selectRandom _squads_1;
@@ -103,8 +109,7 @@
 			if (fow_ia_debug) then {_marker = createMarker [str(_group),_pos];_marker setMarkerShape "ICON";_marker setMarkerType "hd_dot";};
 		};
 		
-		_squads_2_id = fow_ia_factions_green find fow_ia_team2;
-		_squads_2 = fow_ia_squads_green select _squads_2_id;
+		_squads_2 = fow_ia_squads_green select fow_ia_team2_id;
 		
 		for "_i" from 1 to _n_2 do {
 			_type = selectRandom _squads_2;
@@ -123,13 +128,67 @@
 			if (fow_ia_debug) then {_marker = createMarker [str(_group),_pos];_marker setMarkerShape "ICON";_marker setMarkerType "hd_dot";};
 		};
 		
-		if (fow_ia_debug) then {systemChat format ["Team 1: %1 squads - Team 2: %2 squads",_n_1,_n_2];diag_log format ["Team 1: %1 squuds - Team 2: %2 squads",_n_1,_n_2];};
+		if (fow_ia_debug) then {systemChat format ["Team 1: %1 squads - Team 2: %2 squads",_n_1,_n_2];diag_log format ["Team 1: %1 squads - Team 2: %2 squads",_n_1,_n_2];};
+	};
+	fow_ia_fnc_spawnWave = {
+	
+		_team = _this select 0;
+		_id = objNull;
+		_squads_array = objNull;
+		_spawn_pos = [0,0,0];
+		_side = west;
 		
+		switch (_team) do {
+			case fow_ia_team1 : {_id = fow_ia_team1_id;_squads_array = fow_ia_squads_blu;_spawn_pos = fow_ia_team1Spawn;_side = west;};
+			case fow_ia_team2 : {_id = fow_ia_team2_id;_squads_array = fow_ia_squads_green;_spawn_pos = fow_ia_team2Spawn;_side = resistance;};
+		};
+		
+		_n = round (fow_ia_numberSquads + random fow_ia_numberSquadsRandom);
+	
+		_squads = _squads_array select _id;
+		
+		for "_i" from 1 to _n do {
+			_type = selectRandom _squads;
+			_pos = [_spawn_pos, 60] call fow_ia_fnc_randomizePos;
+			_group = [_pos, _side, _type] call BIS_fnc_spawnGroup;
+			_wp =_group addWaypoint [fow_ia_center, 70];
+			_wp setWaypointType "SAD";
+			_group setBehaviour "AWARE";
+			_group setCombatMode "RED";
+			_group setSpeedMode "FULL";
+			
+			if (fow_ia_playerTeam isEqualTo _team) then {
+				{addSwitchableUnit _x} foreach units _group;
+			};
+		};
+		
+		if (fow_ia_debug) then {systemChat format ["Team %1: %2 squads reinforcement",_team,_n];diag_log format ["Team %1: %2 squads reinforcement",_team,_n];};
+	};
+	
+	fow_ia_fnc_missionControl = {
+		sleep 10;//wait for the game start
+		
+		while {true} do {//Not true -> game live
+			_team1 = west countSide allUnits;
+			_team2 = resistance countSide allUnits;
+			
+			if (_team1 < 10 && {fow_ia_numberOfWaves_team1 > 0}) then {
+				fow_ia_numberOfWaves_team1 = fow_ia_numberOfWaves_team1 - 1;
+				[fow_ia_team1] call fow_ia_fnc_spawnWave;
+			};
+			if (_team2 < 10 && {fow_ia_numberOfWaves_team2 > 0}) then {
+				fow_ia_numberOfWaves_team2 = fow_ia_numberOfWaves_team2 - 1;
+				[fow_ia_team2] call fow_ia_fnc_spawnWave;
+			};
+			//NOT WORKING
+			if (_team1 isEqualTo 0 && fow_ia_numberOfWaves_team1 isEqualTo 0) exitWith {hintC format ["Game finished! %1 wins!",fow_ia_team1];};
+			if (_team2 isEqualTo 0 && fow_ia_numberOfWaves_team2 isEqualTo 0) exitWith {hintC format ["Game finished! %1 wins!",fow_ia_team2];};
+		};
 	};
 	
 	fow_ia_fnc_startGame = {
 		
-		_pos = [] call _getRandomStartPos;
+		_pos = [] call fow_ia_fnc_getRandomStartPos;
 		fow_ia_center = [_pos, 0, 1000, 5, 0, 0, 0, [], []] call BIS_fnc_findSafePos;
 		
 		_pos_team_1 = random 360;
@@ -158,6 +217,8 @@
 		if (fow_ia_debug) then {_t = format ["Team 1: %1 - Team 2: %2 - Team Player: %3",fow_ia_team1,fow_ia_team2,fow_ia_playerTeam];systemChat _t;diag_log _t;};
 		
 		[] spawn {sleep 1;player action ["TeamSwitch", player];_oldVehicle = vehicle player; waitUntil {vehicle player != _oldVehicle};removeSwitchableUnit _oldVehicle;};
+		
+		[] spawn fow_ia_fnc_missionControl;
 	};
 	
 	
