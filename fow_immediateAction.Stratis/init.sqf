@@ -21,23 +21,23 @@
 
 	fow_ia_factions_blu = ["Wehrmacht","Fallschirmjäger","IJA","SNLF"];
 	fow_ia_factions_red = [];
-	fow_ia_factions_green = ["US","USMC","UK","UK Para"];
+	fow_ia_factions_green = ["USA","USMC","UK","UK Para"];
 	
 	fow_ia_squads_blu = [
 		//wehr
 		[(configFile >> "CfgGroups" >> "West" >> "fow_wehrmacht" >> "Infantry" >> "fow_ger_RifleSquad"),(configFile >> "CfgGroups" >> "West" >> "fow_wehrmacht" >> "Infantry" >> "fow_ger_RifleTeam"),(configFile >> "CfgGroups" >> "West" >> "fow_wehrmacht" >> "Infantry" >> "fow_ger_MGTeam")],
 		//Fallschirmjäger
-		[(configFile >> "CfgGroups" >> "West" >> "fow_wehrmacht" >> "Infantry" >> "fow_ger_RifleSquad"),(configFile >> "CfgGroups" >> "West" >> "fow_wehrmacht" >> "Infantry" >> "fow_ger_RifleTeam"),(configFile >> "CfgGroups" >> "West" >> "fow_wehrmacht" >> "Infantry" >> "fow_ger_MGTeam")],
+		[(configFile >> "CfgGroups" >> "West" >> "fow_wehrmacht" >> "Infantry" >> "fow_ger_luft_RifleSquad"),(configFile >> "CfgGroups" >> "West" >> "fow_wehrmacht" >> "Infantry" >> "fow_ger_luft_RifleTeam"),(configFile >> "CfgGroups" >> "West" >> "fow_wehrmacht" >> "Infantry" >> "fow_ger_luft_MGTeam")],
 		//IJA
 		[(configFile >> "CfgGroups" >> "West" >> "fow_ija" >> "Infantry" >> "fow_ija_RifleSquad"),(configFile >> "CfgGroups" >> "West" >> "fow_ija" >> "Infantry" >> "fow_ija_RifleTeam"),(configFile >> "CfgGroups" >> "West" >> "fow_ija" >> "Infantry" >> "fow_ija_MGTeam")],
 		//SNLF
 		[(configFile >> "CfgGroups" >> "West" >> "fow_ija" >> "Infantry" >> "fow_ija_snlf_RifleSquad"),(configFile >> "CfgGroups" >> "West" >> "fow_ija" >> "Infantry" >> "fow_ija_snlf_RifleTeam"),(configFile >> "CfgGroups" >> "West" >> "fow_ija" >> "Infantry" >> "fow_ija_snlf_MGTeam")]
 	];
 	fow_ia_squads_green = [
-		//"US"
-		[(configFile >> "CfgGroups" >> "Indep" >> "fow_usa" >> "Infantry" >> "fow_us_RifleSquad"),(configFile >> "CfgGroups" >> "Indep" >> "fow_usa" >> "Infantry" >> "fow_us_RifleTeam"),(configFile >> "CfgGroups" >> "Indep" >> "fow_usa" >> "Infantry" >> "fow_us_MGTeam")],
+		//"USA"
+		[(configFile >> "CfgGroups" >> "Indep" >> "fow_usa" >> "Infantry" >> "fow_us_RifleSquad"),(configFile >> "CfgGroups" >> "Indep" >> "fow_usa" >> "Infantry" >> "fow_us_RifleTeam"),(configFile >> "CfgGroups" >> "Indep" >> "fow_usa" >> "Infantry" >> "fow_us_MGTeam"),(configFile >> "CfgGroups" >> "Indep" >> "fow_usa" >> "Infantry" >> "fow_us_MGTeam_M1919A6")],
 		//"USMC"
-		[(configFile >> "CfgGroups" >> "Indep" >> "fow_usmc" >> "Infantry" >> "fow_usmc_RifleSquad"),(configFile >> "CfgGroups" >> "Indep" >> "fow_usmc" >> "Infantry" >> "fow_usmc_RifleTeam"),(configFile >> "CfgGroups" >> "Indep" >> "fow_usmc" >> "Infantry" >> "fow_usmc_MGTeam")],
+		[(configFile >> "CfgGroups" >> "Indep" >> "fow_usmc" >> "Infantry" >> "fow_usmc_RifleSquad"),(configFile >> "CfgGroups" >> "Indep" >> "fow_usmc" >> "Infantry" >> "fow_usmc_RifleTeam"),(configFile >> "CfgGroups" >> "Indep" >> "fow_usmc" >> "Infantry" >> "fow_usmc_MGTeam"),(configFile >> "CfgGroups" >> "Indep" >> "fow_usmc" >> "Infantry" >> "fow_usmc_MGTeam_M1919A6")],
 		//"UK"
 		[(configFile >> "CfgGroups" >> "Indep" >> "fow_uk" >> "Infantry" >> "fow_uk_RifleSquad"),(configFile >> "CfgGroups" >> "Indep" >> "fow_uk" >> "Infantry" >> "fow_uk_RifleTeam"),(configFile >> "CfgGroups" >> "Indep" >> "fow_uk" >> "Infantry" >> "fow_uk_MGTeam")],
 		//"UK Para"
@@ -180,9 +180,8 @@
 				fow_ia_numberOfWaves_team2 = fow_ia_numberOfWaves_team2 - 1;
 				[fow_ia_team2] call fow_ia_fnc_spawnWave;
 			};
-			//NOT WORKING
-			if (_team1 isEqualTo 0 && fow_ia_numberOfWaves_team1 isEqualTo 0) exitWith {hintC format ["Game finished! %1 wins!",fow_ia_team1];};
-			if (_team2 isEqualTo 0 && fow_ia_numberOfWaves_team2 isEqualTo 0) exitWith {hintC format ["Game finished! %1 wins!",fow_ia_team2];};
+			if (_team1 isEqualTo 0 && fow_ia_numberOfWaves_team1 isEqualTo 0) exitWith {hintC format ["Game finished! %1 wins!",fow_ia_team2];};
+			if (_team2 isEqualTo 0 && fow_ia_numberOfWaves_team2 isEqualTo 0) exitWith {hintC format ["Game finished! %1 wins!",fow_ia_team1];};
 		};
 	};
 	
